@@ -1,2 +1,5 @@
 *.o
 *.a
+src/meshpro
+src/meshview
+
