@@ -1,0 +1,48 @@
+IMGS= \
+output\ico_Rotate_input.jpg \
+output\ico_Rotate_0.5.jpg \
+output\ico_Rotate_0.7.jpg \
+output\dodeca_Rotate_input.jpg \
+output\dodeca_Rotate_0.5.jpg \
+output\dodeca_Rotate_0.7.jpg \
+output\dodeca_Rotate_0.9.jpg \
+output\ico_Scale_input.jpg \
+output\ico_Scale_1_2_3.jpg \
+output\ico_Scale_3_2_1.jpg \
+
+all: $(IMGS)
+
+output\ico_Rotate_input.jpg: input\ico.off
+	src\meshpro $** $(@:.jpg=.off) 
+	src\meshview $(@:.jpg=.off) -output_image $@ -exit_immediately
+output\ico_Rotate_0.5.jpg: input\ico.off
+	src\meshpro $** $(@:.jpg=.off) -rotate 0.5 0 0 0 0 0 1
+	src\meshview $(@:.jpg=.off) -output_image $@ -exit_immediately
+output\ico_Rotate_0.7.jpg: input\ico.off
+	src\meshpro $** $(@:.jpg=.off) -rotate  0.7 0 0 0 0 0 1
+	src\meshview $(@:.jpg=.off) -output_image $@ -exit_immediately
+output\dodeca_Rotate_input.jpg: input\dodeca.off
+	src\meshpro $** $(@:.jpg=.off) 
+	src\meshview $(@:.jpg=.off) -output_image $@ -exit_immediately
+output\dodeca_Rotate_0.5.jpg: input\dodeca.off
+	src\meshpro $** $(@:.jpg=.off) -rotate 0.5 0 0 0 0 0 1
+	src\meshview $(@:.jpg=.off) -output_image $@ -exit_immediately
+output\dodeca_Rotate_0.7.jpg: input\dodeca.off
+	src\meshpro $** $(@:.jpg=.off) -rotate  0.7 0 0 0 0 0 1
+	src\meshview $(@:.jpg=.off) -output_image $@ -exit_immediately
+output\dodeca_Rotate_0.9.jpg: input\dodeca.off
+	src\meshpro $** $(@:.jpg=.off) -rotate  0.9 0 0 0 0 0 1
+	src\meshview $(@:.jpg=.off) -output_image $@ -exit_immediately
+output\ico_Scale_input.jpg: input\ico.off
+	src\meshpro $** $(@:.jpg=.off) 
+	src\meshview $(@:.jpg=.off) -output_image $@ -exit_immediately
+output\ico_Scale_1_2_3.jpg: input\ico.off
+	src\meshpro $** $(@:.jpg=.off) -scale 1 2 3
+	src\meshview $(@:.jpg=.off) -output_image $@ -exit_immediately
+output\ico_Scale_3_2_1.jpg: input\ico.off
+	src\meshpro $** $(@:.jpg=.off) -scale  3 2 1
+	src\meshview $(@:.jpg=.off) -output_image $@ -exit_immediately
+
+clean:
+	del $(IMGS) /q
+	del $(IMGS:.jpg=.off) /q
