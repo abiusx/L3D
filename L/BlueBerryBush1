@@ -1,0 +1,15 @@
+#BlueBerryBush1
+#http://www.geocities.com/gplatl/LSystem/LSystem.html"
+10
+11.25
+75
+9a
+a=4/[^^l]
+l=[X^[++B]r]
+r=4X^[--B]l
+B=[b[3+L][3-L]XB]
+L=F'{+Y.-Y.-Y.+|+Y.-Y.}
+X=FX
+Y=gY
+z=4/[^B]
+b=X8'[^^4F~S]8`

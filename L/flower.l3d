@@ -1,0 +1,14 @@
+#flower http://www.allenpike.com/images/461/lsystem.python
+#crashes
+5
+18
+15
+P
+P=I + [P + O] - - // [--L] I [++L] - [P O] ++ PO
+I=F S [// && L] [// ^^ L] F S
+S=[(33, 'S [// && L] [// ^^ L] F S'), (33, 'S F S'), (34, 'S')]
+L=[`{+f-ff-f+ | +f-ff-f}]
+O=[&&& D `/ W //// W //// W //// W //// W]
+D=FF
+W=[`^F] [<&&&& -f+f | -f+f>]
+@

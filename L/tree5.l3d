@@ -1,0 +1,9 @@
+#a weird tree that looks good from some angles
+#http://www.geekyblogger.com/2008/04/tree-and-l-system.html
+8
+30
+5
+fA
+A=f[^Bl]>>[^Bl]>>A
+B=f[-Bl]B
+@

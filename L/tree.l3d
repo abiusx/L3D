@@ -1,9 +1,9 @@
-3
+#a nice decent tree!
+#http://www.geekyblogger.com/2008/04/tree-and-l-system.html
+8
 15
-5
-F
-F=F[-EF[&&&A]]E[+F[^^^A]]
-E=F[  F[+++A]][^F[---A]]
-A=[++++G.][++GG.][GGGGG.][-GGG.][--GG.][----G.]
-G=f
+2
+fA
+A=^fB>>B>>>>>B
+B=[^^f>>>>>>A]
 @
