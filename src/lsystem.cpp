@@ -32,7 +32,13 @@ string LSystem::reproduce(const string axiom,const AssociativeArray rules, const
 }
 string LSystem::generateFromFile(const char * filename,const int iterationsOverride )
 {
+	cout <<"Generating L-System data..."<<endl;
 	ifstream file(filename);
+	if (!file)
+	{
+		cout <<"Could not open L file "<<filename<<endl;
+		return "";
+	}
 	int numbersRead=0;
 	float numbers[3];
 	string axiom;
@@ -98,8 +104,10 @@ void LSystem::run(const char command,const int param)
 			turtle.pitchUp(num);
 			break;
 		case '<':
+		case '\\':
 			turtle.rollLeft(num);
 			break;
+		case '/':
 		case '>':
 			turtle.rollRight(num);
 			break;
