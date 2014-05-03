@@ -7,7 +7,7 @@
 # 
 # List of source files
 #
-SRCS=R3Mesh.cpp lsystem.cpp turtle.cpp
+SRCS=R3Mesh.cpp lsystem.cpp turtle.cpp lplus.cpp
 MESHPRO_SRCS=meshpro.cpp $(SRCS)
 MESHPRO_OBJS=$(MESHPRO_SRCS:.cpp=.o)
 

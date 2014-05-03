@@ -10,6 +10,8 @@ struct Turtle
   R3Vector position;
   R3Vector direction;
   R3Vector right;
+  float thickness;
+  float reduction;
   Turtle();
   void turnRight(float angle);
   void turnLeft(float angle);
@@ -19,17 +21,24 @@ struct Turtle
   void rollRight(float angle);
   void move(float distance);
   void turn180(float temp);
+  void thicken(float param);
+  void narrow(float param);
+  void setThickness(float param);
+  void setReduction(float param);
+
+
 };
 class TurtleSystem: public Turtle 
 {
   stack<Turtle> state;
   R3Mesh *mesh;
 public:
-  float thickness;
   TurtleSystem(R3Mesh * m);
   void save();
   void restore();
   void draw(float param);
+  void drawLeaf(float param);
+
 };
 
 #endif

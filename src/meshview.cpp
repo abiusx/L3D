@@ -189,6 +189,9 @@ void GLUTRedraw(void)
   // Draw faces
   if (show_faces) {
     glEnable(GL_LIGHTING);
+    // glDisable (GL_LIGHTING); //ABIUSX
+
+
     static GLfloat diffuse[] = { 0.8, 0.8, 0.8, 1.0 };
     static GLfloat specular[] = { 0.2, 0.2, 0.2, 1.0 };
     static GLfloat shininess[] = { 64 };
@@ -200,6 +203,10 @@ void GLUTRedraw(void)
       R3MeshFace *face = mesh->Face(i);
       const R3Vector& normal = face->plane.Normal();
       glNormal3d(normal[0], normal[1], normal[2]);
+      if (rand()%100<50) //ABIUSX
+        glColor3d(.3,.6,.05);
+      else
+        glColor3d(.6,.3,.05);
       for (unsigned int j = 0; j < face->vertices.size(); j++) {
         R3MeshVertex *vertex = face->vertices[j];
         const R3Point& p = vertex->position;

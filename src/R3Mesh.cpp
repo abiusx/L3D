@@ -5,9 +5,8 @@
 // Include files
 
 #include "R3Mesh.h"
-#include "lsystem.h"
+#include "lplus.h"
 
-int R3Mesh::slices=10;
 void R3Mesh::
 Twist(double angle)
 {
@@ -19,10 +18,30 @@ Twist(double angle)
   // Update mesh data structures
   Update();
 }
+R3Shape R3Mesh::Leaf(const R3Vector direction)
+{
+  float z;
+  z=direction.Dot(R3Vector(0,1,0))/4.0; //bend towards earth
+  
+  if (z==0) z=(rand()%20 -10 ) /100.0; //some random bend if non
 
+  vector<R3MeshVertex *> face;
+  face.push_back(CreateVertex(R3Point(0,.01,0)));
+  face.push_back(CreateVertex(R3Point(.2,.1,0)));
+  face.push_back(CreateVertex(R3Point(.25,.3,0)));
+  face.push_back(CreateVertex(R3Point(.2,.6,z/2)));
+  
+
+  face.push_back(CreateVertex(R3Point(0,1-z,z)));
+  face.push_back(CreateVertex(R3Point(-.2,.6,z/2)));
+  face.push_back(CreateVertex(R3Point(-.25,.3,0)));
+  face.push_back(CreateVertex(R3Point(-.2,.1,0)));
+  CreateFace(face);
+  return face;
+
+}
 R3Shape R3Mesh::Circle(float radius,int slices)
 {
-  if (!slices) slices=this->slices;
   vector<R3MeshVertex *> face_vertices;
   for(int i=0; i<slices; i++) 
   {
@@ -35,9 +54,10 @@ R3Shape R3Mesh::Circle(float radius,int slices)
   return face_vertices;
 
 }
-R3Shape R3Mesh::Cylinder(float topBottomRatio)
+R3Shape R3Mesh::Cylinder(float topBottomRatio,int slices)
 {
   static bool cached=false;
+  cached=false;
   static vector<R3Point> cache;
   int cacheIndex=0;
 
@@ -121,12 +141,17 @@ Tree(const char * descriptor_filename,const int iterations)
   printf("%f %f %f\n",t.right.X(),t.right.Y(),t.right.Z());
   * end turtle system test **/
 
-  AddCoords();
+  // AddCoords();
   // R3Shape cylinder=Cylinder();
   // TranslateShape(cylinder,-50,0,0);
   // Update();
   // return;
-  LSystem l(this);
+
+  // Leaf(R3Vector(0,1,0));
+  // Update();
+  // return;
+
+  LPlusSystem l(this);
   string lsystem=l.generateFromFile(descriptor_filename,iterations);
   l.draw(lsystem); 
   Update();

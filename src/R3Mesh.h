@@ -124,9 +124,10 @@ struct R3Mesh {
   void Tree(const char *descriptor_filename,const int iterations=0);
   void AddCoords(); 
 
-  R3Shape Cylinder(float topBottomRatio=1.0);
+  R3Shape Cylinder(float topBottomRatio=1.0,int slices=10);
   R3Shape Circle(float radius,int slices=0);
-  static int slices;
+  R3Shape Leaf(const R3Vector direction=R3zero_vector);
+
   // Update functions
   void Update(void);
   void UpdateBBox(void);

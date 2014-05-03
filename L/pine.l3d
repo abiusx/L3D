@@ -1,11 +1,11 @@
 #pine tree
 15
-35
-15
+37
+15 #thickness percentage
 ffffA
 A=ff[&(90)TP++P++P++P++P]fAB
 P=[^(10)fZ]
 Z=fBZ
-B=[^(80)[f] [ +(70)[f]+(100)[f]] -(80)f]
+B=[^(80)[f] [ +(70)[f]+(100)[f]] [-(80)f] ]
 T=+(20)T
 @

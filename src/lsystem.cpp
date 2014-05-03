@@ -19,8 +19,10 @@ string LSystem::produce(const string axiom, const AssociativeArray rules)
 	for (iter=rules.begin(); iter!=rules.end();++iter)
 	{
 		string key=iter->first;
-		string value=iter->second;
-		replaceAll(t,key,value);
+		vector<string> value=iter->second;
+		int index=rand()%value.size();
+		// printf("Selected %d out of %d : %s\n",index,value.size(),value[index].c_str());
+		replaceAll(t,key,value[index]);
 	}
 	return t;
 }
@@ -69,7 +71,7 @@ string LSystem::generateFromFile(const char * filename,const int iterationsOverr
 		else
 		{
 
-			rules[temp.substr(0,equalSignPos)]=temp.substr(equalSignPos+1);
+			rules[temp.substr(0,equalSignPos)].push_back(temp.substr(equalSignPos+1));
 			// cout <<temp.substr(0,equalSignPos)<<"  "<<temp.substr(equalSignPos+1)<<endl;
 		}
 	}
@@ -83,7 +85,7 @@ string LSystem::generateFromFile(const char * filename,const int iterationsOverr
 	return reproduce(axiom,rules,iterations);
 
 }
-void LSystem::run(const char command,const int param)
+void LSystem::run(const char command,const float param)
 {
 	float co=defaultCoefficient;
 	float num=param;
@@ -103,7 +105,7 @@ void LSystem::run(const char command,const int param)
 		case '^':
 			turtle.pitchUp(num);
 			break;
-		case '<':
+		case '<': //increase diameter
 		case '\\':
 			turtle.rollLeft(num);
 			break;
@@ -132,11 +134,14 @@ void LSystem::run(const char command,const int param)
 	}
 
 
+
 }
 void LSystem::draw(const string tree)
 {
+	char paramBuf[1024];
+	int bufIndex=0;
 	string data=tree;
-	int param=0;
+	float param=0;
 	bool getParam=false,checkParam=false;
 	char command;
 	for (int i=0;i<data.size();++i)
@@ -146,11 +151,14 @@ void LSystem::draw(const string tree)
 		{
 			if (c==')')
 			{
+				paramBuf[bufIndex]=0;
+				bufIndex=0;
+				param=atof(paramBuf);
 				getParam=false;
 				run(command,param);
 			}
 			else
-				param=param*10+c-'0';
+				paramBuf[bufIndex++]=c;
 			continue;
 		}
 		if (checkParam)
