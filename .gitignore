@@ -1,5 +1,6 @@
 *.o
 *.off
+*.off+
 *.a
 src/meshpro
 src/meshview

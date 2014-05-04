@@ -90,7 +90,7 @@ void GLUTDrawText(const R3Point& p, const char *s)
   while (*s) glutBitmapCharacter((void*)7, *(s++));
 #endif
 }
-  
+
 
 
 
@@ -155,8 +155,69 @@ void GLUTResize(int w, int h)
   glutPostRedisplay();
 }
 
+//ABIUSX
+GLuint LoadTexture( const char * filename ,int width,int height)
+{
+
+  GLuint texture;
+
+  // int width, height;
+
+  unsigned char * data;
+
+  FILE * file;
+
+  file = fopen( filename, "rb" );
+
+  if ( file == NULL ) return 0;
+  data = (unsigned char *)malloc( width * height * 3 );
+  //int size = fseek(file,);
+  fread( data, width * height * 3, 1, file );
+  fclose( file );
+
+  for(int i = 0; i < width * height ; ++i)
+  {
+   int index = i*3;
+   unsigned char B,R;
+   B = data[index];
+   R = data[index+2];
+
+   data[index] = R;
+   data[index+2] = B;
+
+ }
 
 
+ glGenTextures( 1, &texture );
+ glBindTexture( GL_TEXTURE_2D, texture );
+ glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,GL_MODULATE );
+ glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST );
+
+ glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+ glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,GL_LINEAR );
+ glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,GL_REPEAT );
+ glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,GL_REPEAT );
+ gluBuild2DMipmaps( GL_TEXTURE_2D, 3, width, height,GL_RGB, GL_UNSIGNED_BYTE, data );
+  // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, 
+  //   height, 0, GL_RGB, GL_UNSIGNED_BYTE, 
+  //   data);
+ free( data );
+
+ return texture;
+}
+GLuint tree,leaf;
+void GLUTTexture()
+{
+
+  glEnable(GL_TEXTURE_2D);
+  glShadeModel(GL_FLAT);
+  glEnable(GL_DEPTH_TEST);
+
+  tree=LoadTexture("textures/lightwood.bmp",512,512);
+  leaf=LoadTexture("textures/leaf.bmp",512,512);
+
+}
 void GLUTRedraw(void)
 {
   // Set projection transformation
@@ -189,7 +250,8 @@ void GLUTRedraw(void)
   // Draw faces
   if (show_faces) {
     glEnable(GL_LIGHTING);
-    // glDisable (GL_LIGHTING); //ABIUSX
+    // glEnable(GL_TEXTURE_2D); //ABIUSX
+    // glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL); //ABIUSX
 
 
     static GLfloat diffuse[] = { 0.8, 0.8, 0.8, 1.0 };
@@ -199,17 +261,21 @@ void GLUTRedraw(void)
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular); 
     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shininess); 
     for (int i = 0; i < mesh->NFaces(); i++) {
-      glBegin(GL_POLYGON);
       R3MeshFace *face = mesh->Face(i);
+      if (face->isLeaf) //ABIUSX
+        glBindTexture(GL_TEXTURE_2D, leaf); //ABIUSX
+      else //ABIUSX
+        glBindTexture(GL_TEXTURE_2D, tree); //ABIUSX
+      glBegin(GL_POLYGON);
+
       const R3Vector& normal = face->plane.Normal();
       glNormal3d(normal[0], normal[1], normal[2]);
-      if (rand()%100<50) //ABIUSX
-        glColor3d(.3,.6,.05);
-      else
-        glColor3d(.6,.3,.05);
       for (unsigned int j = 0; j < face->vertices.size(); j++) {
         R3MeshVertex *vertex = face->vertices[j];
         const R3Point& p = vertex->position;
+        // printf("%f %f\n",vertex->texcoords.X(),vertex->texcoords.Y());
+        glTexCoord2f(vertex->texcoords.X(),vertex->texcoords.Y()); //ABIUSX
+        // glTexCoord2f(p[0],p[1]); //ABIUSX
         glVertex3f(p[0], p[1], p[2]);
       }
       glEnd();
@@ -591,7 +657,7 @@ void GLUTSpecial(int key, int x, int y)
 
   // Process keyboard button event 
   switch (key) {
-  case GLUT_KEY_F1:
+    case GLUT_KEY_F1:
     save_image = 1;
     break;
   }
@@ -616,72 +682,72 @@ void GLUTKeyboard(unsigned char key, int x, int y)
 
   // Process keyboard button event 
   switch (key) {
-  case ' ':
+    case ' ':
     pick_active = GLUTPick(x, y, mesh, &pick_face, &pick_position);
     if (pick_active) 
       printf("Picked face %d with area %g at position (%g %g %g )\n", pick_face->id, 
         pick_face->Area(), pick_position[0], pick_position[1], pick_position[2]);  
     break;
 
-  case 'B':
-  case 'b':
+    case 'B':
+    case 'b':
     show_bbox = !show_bbox;
     break;
 
-  case 'C':
-  case 'c':
+    case 'C':
+    case 'c':
     show_curvatures = !show_curvatures;
     break;
 
-  case 'E':
-  case 'e':
+    case 'E':
+    case 'e':
     show_edges = !show_edges;
     break;
 
-  case 'F':
-  case 'f':
+    case 'F':
+    case 'f':
     show_faces = !show_faces;
     break;
 
-  case 'I':
-  case 'i':
+    case 'I':
+    case 'i':
     show_ids = !show_ids;
     break;
 
-  case 'N':
-  case 'n':
+    case 'N':
+    case 'n':
     show_normals = !show_normals;
     break;
 
-  case 'P':
-  case 'p':
+    case 'P':
+    case 'p':
     show_pick = !show_pick;
     break;
 
-  case 'Q':
-  case 'q':
+    case 'Q':
+    case 'q':
     quit = 1;
     break;
 
-  case 'V':
-  case 'v':
+    case 'V':
+    case 'v':
     show_vertices = !show_vertices;
     break;
 
   case 27: // ESCAPE
-    quit = 1;
-    break;
-  }
+  quit = 1;
+  break;
+}
 
   // Remember mouse position 
-  GLUTmouse[0] = x;
-  GLUTmouse[1] = y;
+GLUTmouse[0] = x;
+GLUTmouse[1] = y;
 
   // Remember modifiers 
-  GLUTmodifiers = glutGetModifiers();
+GLUTmodifiers = glutGetModifiers();
 
   // Redraw
-  glutPostRedisplay();
+glutPostRedisplay();
 }
 
 
@@ -690,16 +756,16 @@ void GLUTCommand(int cmd)
 {
   // Execute command
   switch (cmd) {
-  case DISPLAY_FACE_TOGGLE_COMMAND: show_faces = !show_faces; break;
-  case DISPLAY_EDGE_TOGGLE_COMMAND: show_edges = !show_edges; break;
-  case DISPLAY_VERTEX_TOGGLE_COMMAND: show_vertices = !show_vertices; break;
-  case DISPLAY_NORMAL_TOGGLE_COMMAND: show_normals = !show_normals; break;
-  case DISPLAY_CURVATURE_TOGGLE_COMMAND: show_curvatures = !show_curvatures; break;
-  case DISPLAY_BBOX_TOGGLE_COMMAND: show_bbox = !show_bbox; break;
-  case TWIST_COMMAND: mesh->Twist(0.5); break;
-  case SAVE_IMAGE_COMMAND: if (output_image_name) GLUTSaveImage(output_image_name); break;
-  case SAVE_MESH_COMMAND: if (output_mesh_name) mesh->Write(output_mesh_name); break;
-  case QUIT_COMMAND: quit = 1; break;
+    case DISPLAY_FACE_TOGGLE_COMMAND: show_faces = !show_faces; break;
+    case DISPLAY_EDGE_TOGGLE_COMMAND: show_edges = !show_edges; break;
+    case DISPLAY_VERTEX_TOGGLE_COMMAND: show_vertices = !show_vertices; break;
+    case DISPLAY_NORMAL_TOGGLE_COMMAND: show_normals = !show_normals; break;
+    case DISPLAY_CURVATURE_TOGGLE_COMMAND: show_curvatures = !show_curvatures; break;
+    case DISPLAY_BBOX_TOGGLE_COMMAND: show_bbox = !show_bbox; break;
+    case TWIST_COMMAND: mesh->Twist(0.5); break;
+    case SAVE_IMAGE_COMMAND: if (output_image_name) GLUTSaveImage(output_image_name); break;
+    case SAVE_MESH_COMMAND: if (output_mesh_name) mesh->Write(output_mesh_name); break;
+    case QUIT_COMMAND: quit = 1; break;
   }
 
   // Mark window for redraw
@@ -757,7 +823,7 @@ void GLUTInit(int *argc, char **argv)
   glutSpecialFunc(GLUTSpecial);
   glutMouseFunc(GLUTMouse);
   glutMotionFunc(GLUTMotion);
-    
+
   // Initialize lights 
   static GLfloat lmodel_ambient[] = { 0.2, 0.2, 0.2, 1.0 };
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmodel_ambient);
@@ -774,6 +840,8 @@ void GLUTInit(int *argc, char **argv)
   // Initialize graphics modes 
   glEnable(GL_DEPTH_TEST);
 
+  //ABIUSX
+  GLUTTexture();
   // Create menus
   GLUTCreateMenu();
 }

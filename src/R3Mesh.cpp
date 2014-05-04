@@ -26,17 +26,17 @@ R3Shape R3Mesh::Leaf(const R3Vector direction)
   if (z==0) z=(rand()%20 -10 ) /100.0; //some random bend if non
 
   vector<R3MeshVertex *> face;
-  face.push_back(CreateVertex(R3Point(0,.01,0)));
-  face.push_back(CreateVertex(R3Point(.2,.1,0)));
-  face.push_back(CreateVertex(R3Point(.25,.3,0)));
-  face.push_back(CreateVertex(R3Point(.2,.6,z/2)));
+  face.push_back(CreateVertex(R3Point(0,.01,0)  ,R2Point(.5,.01) )); 
+  face.push_back(CreateVertex(R3Point(.2,.1,0)  ,R2Point(.7,.1) ));
+  face.push_back(CreateVertex(R3Point(.25,.3,0) ,R2Point(.75,.3) ));
+  face.push_back(CreateVertex(R3Point(.2,.6,z/2) ,R2Point(.7,.6) ));
   
 
-  face.push_back(CreateVertex(R3Point(0,1-z,z)));
-  face.push_back(CreateVertex(R3Point(-.2,.6,z/2)));
-  face.push_back(CreateVertex(R3Point(-.25,.3,0)));
-  face.push_back(CreateVertex(R3Point(-.2,.1,0)));
-  CreateFace(face);
+  face.push_back(CreateVertex(R3Point(0,1-z,z) ,R2Point(.5,1) ));
+  face.push_back(CreateVertex(R3Point(-.2,.6,z/2) ,R2Point(.3,.6) ));
+  face.push_back(CreateVertex(R3Point(-.25,.3,0) ,R2Point(.25,.3) ));
+  face.push_back(CreateVertex(R3Point(-.2,.1,0) ,R2Point(.3,.1) ));
+  CreateFace(face)->isLeaf=true;
   return face;
 
 }
@@ -75,13 +75,13 @@ R3Shape R3Mesh::Cylinder(float topBottomRatio,int slices)
 
     if (!cached) cache.push_back( p=R3Point(topRadius*cos(theta), length, topRadius*sin(theta)) );
     else p=cache[cacheIndex++];
-    t1=CreateVertex(p) ; //vertices at edges of circle
+    t1=CreateVertex(p,R2Point(i*2/(float)slices,1)) ; //vertices at edges of circle
     top_circle.push_back(t1);
     vertices.push_back(t1);
 
     if (!cached) cache.push_back( p=R3Point(radius*cos(theta), 0, radius*sin(theta)) );
     else p=cache[cacheIndex++];
-    t2=CreateVertex(p); //vertices at edges of circle
+    t2=CreateVertex(p,R2Point(i*2/(float)slices,0)); //vertices at edges of circle
     bottom_circle.push_back(t2);
     vertices.push_back(t2);
   }
@@ -141,9 +141,9 @@ Tree(const char * descriptor_filename,const int iterations)
   printf("%f %f %f\n",t.right.X(),t.right.Y(),t.right.Z());
   * end turtle system test **/
 
+
   // AddCoords();
   // R3Shape cylinder=Cylinder();
-  // TranslateShape(cylinder,-50,0,0);
   // Update();
   // return;
 
@@ -323,12 +323,16 @@ void R3Mesh::Rotate(double angle, const R3Line& axis)
 ////////////////////////////////////////////////////////////
 // MESH ELEMENT CREATION/DELETION FUNCTIONS
 ////////////////////////////////////////////////////////////
-
-R3MeshVertex *R3Mesh::
-CreateVertex(const R3Point& position, const R3Vector& normal, const R2Point& texcoords)
+R3MeshVertex *R3Mesh::CreateVertex(const R3Point& position, const R2Point& texcoords)
 {
+  return CreateVertex(position,R3zero_vector,texcoords);
+}
+
+R3MeshVertex *R3Mesh::CreateVertex(const R3Point& position, const R3Vector& normal, const R2Point& texcoords)
+{
+  R2Point tx=texcoords;
   // Create vertex
-  R3MeshVertex *vertex = new R3MeshVertex(position, normal, texcoords);
+  R3MeshVertex *vertex = new R3MeshVertex(position, normal, tx);
 
   // Update bounding box
   bbox.Union(position);
@@ -483,6 +487,8 @@ Read(const char *filename)
   int status = 0;
   if (!strncmp(extension, ".ray", 4)) 
     status = ReadRay(filename);
+  else if (!strncmp(extension, ".off+", 5)) 
+    status = ReadOff(filename,true);
   else if (!strncmp(extension, ".off", 4)) 
     status = ReadOff(filename);
   else if (!strncmp(extension, ".jpg", 4)) 
@@ -520,6 +526,8 @@ Write(const char *filename)
   // Write file of appropriate type
   if (!strncmp(extension, ".ray", 4)) 
     return WriteRay(filename);
+  else if (!strncmp(extension, ".off+", 5)) 
+    return WriteOffPlus(filename);
   else if (!strncmp(extension, ".off", 4)) 
     return WriteOff(filename);
   else {
@@ -591,7 +599,7 @@ ReadImage(const char *filename)
 ////////////////////////////////////////////////////////////
 
 int R3Mesh::
-ReadOff(const char *filename)
+ReadOff(const char *filename,int plus)
 {
   // Open file
   FILE *fp;
@@ -648,9 +656,17 @@ ReadOff(const char *filename)
         fclose(fp);
         return 0;
       }
+      //<ABIUSX
+      R2Point point=R2zero_point; 
+      if (plus)
+      {
+        float px,py;
+        sscanf(bufferp,"%lf %lf %lf %f %f",&x, &y, &z, &px,&py);
+        point=R2Point(px,py);
+      } //ABIUSX>
 
       // Create vertex
-      CreateVertex(R3Point(x, y, z), R3zero_vector, R2zero_point);
+      CreateVertex(R3Point(x, y, z), R3zero_vector, point);
 
       // Increment counter
       vertex_count++;
@@ -683,7 +699,13 @@ ReadOff(const char *filename)
       }
 
       // Create face
-      CreateFace(face_vertices);
+      //<ABIUSX
+      if (plus)
+      {
+        bufferp=strtok(NULL, " \t");
+        CreateFace(face_vertices)->isLeaf=atoi(bufferp);
+      }
+      //>ABIUSX
 
       // Increment counter
       face_count++;
@@ -755,7 +777,45 @@ WriteOff(const char *filename)
   return NFaces();
 }
 
+int R3Mesh::
+WriteOffPlus(const char *filename)
+{
+  // Open file
+  FILE *fp = fopen(filename, "w");
+  if (!fp) {
+    fprintf(stderr, "Unable to open file %s\n", filename);
+    return 0;
+  }
 
+  // Write header
+  fprintf(fp, "OFF\n");
+  fprintf(fp, "%d %d %d\n", NVertices(), NFaces(), 0);
+
+  // Write vertices
+  for (int i = 0; i < NVertices(); i++) {
+    R3MeshVertex *vertex = Vertex(i);
+    const R3Point& p = vertex->position;
+    fprintf(fp, "%g %g %g %g %g\n", p.X(), p.Y(), p.Z(),vertex->texcoords.X(),vertex->texcoords.Y());
+    vertex->id = i;
+  }
+
+  // Write Faces
+  for (int i = 0; i < NFaces(); i++) {
+    R3MeshFace *face = Face(i);
+    fprintf(fp, "%d", (int) face->vertices.size());
+    for (unsigned int j = 0; j < face->vertices.size(); j++) {
+      fprintf(fp, " %d", face->vertices[j]->id);
+    }
+    fprintf(fp," %d",face->isLeaf);
+    fprintf(fp, "\n");
+  }
+
+  // Close file
+  fclose(fp);
+
+  // Return number of faces
+  return NFaces();
+}
 
 ////////////////////////////////////////////////////////////
 // RAY FILE INPUT/OUTPUT
@@ -978,7 +1038,8 @@ R3MeshFace::
 R3MeshFace(void)
 : vertices(),
 plane(0, 0, 0, 0),
-id(0)
+id(0),
+isLeaf(0)
 {
 }
 
@@ -988,7 +1049,8 @@ R3MeshFace::
 R3MeshFace(const R3MeshFace& face)
 : vertices(face.vertices),
 plane(face.plane),
-id(0)
+id(0),
+isLeaf(0)
 {
 }
 
@@ -998,7 +1060,8 @@ R3MeshFace::
 R3MeshFace(const vector<R3MeshVertex *>& vertices)
 : vertices(vertices),
 plane(0, 0, 0, 0),
-id(0)
+id(0),
+isLeaf(0)
 {
   UpdatePlane();
 }

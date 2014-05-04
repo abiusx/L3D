@@ -67,6 +67,7 @@ struct R3MeshFace {
   vector<R3MeshVertex *> vertices;
   R3Plane plane;
   int id;
+  bool isLeaf;
 };
 ///ABIUSX
 typedef pair<R3MeshVertex*,R3MeshVertex*> R3MeshEdge;
@@ -108,15 +109,16 @@ struct R3Mesh {
   // File input/output 
   int Read(const char *filename);
   int ReadRay(const char *filename);
-  int ReadOff(const char *filename);
+  int ReadOff(const char *filename,int plus=false);
   int ReadImage(const char *filename);
   int Write(const char *filename);
   int WriteRay(const char *filename);
   int WriteOff(const char *filename);
-
+  int WriteOffPlus(const char *filename);
   // Low-level creation functions
   R3MeshVertex *CreateVertex(const R3Point& position, 
     const R3Vector& normal=R3zero_vector, const R2Point& texcoords=R2zero_point);
+  R3MeshVertex *CreateVertex(const R3Point& position, const R2Point& texcoords);
   R3MeshFace *CreateFace(const vector <R3MeshVertex *>& vertices);
   void DeleteVertex(R3MeshVertex *vertex);
   void DeleteFace(R3MeshFace *face);
@@ -124,7 +126,7 @@ struct R3Mesh {
   void Tree(const char *descriptor_filename,const int iterations=0);
   void AddCoords(); 
 
-  R3Shape Cylinder(float topBottomRatio=1.0,int slices=10);
+  R3Shape Cylinder(float topBottomRatio=1.0,int slices=100);
   R3Shape Circle(float radius,int slices=0);
   R3Shape Leaf(const R3Vector direction=R3zero_vector);
 

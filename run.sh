@@ -4,5 +4,5 @@ else args=$1
 fi
 echo $args
 
-make && time src/meshpro $args out.off && src/meshview out.off
+make && time src/meshpro $args out.off+ && src/meshview out.off+
 	

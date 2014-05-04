@@ -124,13 +124,13 @@ void TurtleSystem::draw(float param)
 
   int slices;
   if (thickness<.2)
-    slices=10;
-  else if (thickness<.4)
     slices=20;
-  else if (thickness<.6)
+  else if (thickness<.4)
     slices=40;
-  else if (thickness<.8)
+  else if (thickness<.6)
     slices=60;
+  else if (thickness<.8)
+    slices=80;
   else
     slices=100;
   R3Shape s=mesh->Cylinder(reduction,slices);
