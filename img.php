@@ -9,3 +9,10 @@ if (isset($_GET['k']))
 #		unlink($imgFile);
 #		unlink($outFile);
 	}
+if (isset($_GET['m']))
+	if (file_exists($_GET['m'].".off+"))
+	{
+		header("Content-type: application/octet-steam");
+		header("Content-disposition: attachment; filename=model.off+");
+		readfile($_GET['m'].".off+");
+	}

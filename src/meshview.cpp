@@ -905,8 +905,7 @@ ParseArgs(int argc, char **argv)
 // MAIN
 ////////////////////////////////////////////////////////////
 
-int 
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
   // Initialize GLUT
   GLUTInit(&argc, argv);

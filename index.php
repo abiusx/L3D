@@ -30,6 +30,7 @@ if (isset($_POST['description']))
 	{
 		echo "<br/><img border='1' src='./img.php?k={$base}' /><br/>";
 		echo "Generated in ".$totalTime." seconds.<br/>";
+		echo "Download the 3D model <a href='./img.php?m={$base}'>file</a>.<br/>";
 	}
 	else
 	{
@@ -42,7 +43,7 @@ if (isset($_POST['description']))
 <form method='post'>
 Put your L or L++ description in here:
 <br/>
-<textarea onclick="this.focus();this.select()" cols='80' rows='10' name='description'><?php
+<textarea onclick="#this.focus();this.select()" cols='80' rows='10' name='description'><?php
 if (isset($_POST['description'])) echo htmlspecialchars($_POST['description']);
 else
 /*echo "3
